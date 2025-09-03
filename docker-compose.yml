@@ -1,0 +1,61 @@
+
+# -- if you link your services with a network you can use the service name (e.g. "api") instead of the url (http://api:8080)
+networks:
+  rteqc_net:
+    name: rteqc_net
+    driver: bridge
+    attachable: false
+
+# -- this is to declare Docker volume 
+# volumes:
+#   miniseed-data:
+#     driver: local
+
+services:
+  rteqc:
+    build:
+      context: ./RCET_RTEQcorrscan/real-time
+    container_name: rteq-real-time
+    restart: always
+    networks:
+      - rteqc_net
+    volumes:
+      - "${DETECT_DIR}:/tmp/outputs/detections"
+      - "${TEMPLATE_DIR}:/tmp/outputs/templates"
+    entrypoint: conda run -n rteqc --no-capture-output /bin/bash -c "rteqcorrscan-reactor --config /RCET_RTEQC_config.yml --working-dir /tmp/outputs/detections"
+    deploy:
+      resources:
+        limits:
+          cpus: 10
+          memory: 40G
+
+  api:
+    build:
+      context: ./RTEQC_api
+    container_name: rteqc-api
+    restart: always
+    networks:
+      - rteqc_net
+    volumes:
+      - "${DETECT_DIR}:/tmp/outputs/detections" # <= here you mount the folder that gets the output of RTEQ
+    ports:
+      - "8000:8000"
+    # entrypoint: python3.9 rpflow-api.py -c config.yaml
+    entrypoint: fastapi run /code/rteqc_api.py --host 0.0.0.0 --port 8000
+    depends_on:
+      - rteqc
+
+  grafana:
+    build: 
+      context: ./RTEQC_grafana
+    container_name: rteqc-grafana
+    networks: 
+      - rteqc_net
+    ports:
+      - "7777:3000"
+    restart: always
+    depends_on: # will start after api
+      - api
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    entrypoint: /entrypoint.sh 
