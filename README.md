@@ -1,6 +1,6 @@
 # Composition of RTEQC
 
-Files to orchstrate docker set ups for RTEQC.
+Files to orchstrate docker set ups for RTEQC. Needs to have the RCET_RTEQcorrscan, RTEQC_api and RTEQ_grafana repositories cloned within this folder.
 
 To run a simulation, change the event id (and other env variables) in the `Albatross_sim.env` file then run:
 
