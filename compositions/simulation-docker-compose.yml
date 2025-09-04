@@ -16,7 +16,6 @@ services:
     build:
       context: ../RCET_RTEQcorrscan/simulations
     container_name: rteq-real-time
-    restart: always
     networks:
       - rteqc_net
     volumes:
