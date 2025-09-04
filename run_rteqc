@@ -71,7 +71,7 @@ if [ "${SIM}" == "true" ]; then
 
     echo "Running simulation for ${EVENT}"
 
-    TRIGGER_ID=${EVENT} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env up
+    TRIGGER_ID=${EVENT} DB_LEN=${DB_LEN} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env up
     exit 0
 fi
 
