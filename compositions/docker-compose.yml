@@ -23,11 +23,11 @@ services:
       - "${DETECT_DIR}:/tmp/outputs/detections"
       - "${TEMPLATE_DIR}:/tmp/outputs/templates"
     entrypoint: conda run -n rteqc --no-capture-output /bin/bash -c "rteqcorrscan-reactor --config /RCET_RTEQC_config.yml --working-dir /tmp/outputs/detections"
-    deploy:
-      resources:
-        limits:
-          cpus: 10
-          memory: 40G
+    # deploy:
+    #   resources:
+    #     limits:
+          # cpus: 10
+          # memory: 40G
 
   api:
     build:

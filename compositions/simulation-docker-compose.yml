@@ -26,7 +26,7 @@ services:
       resources:
         limits:
           cpus: 10
-          memory: 40G
+          memory: 55G
 
   api:
     build:
