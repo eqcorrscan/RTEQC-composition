@@ -1,0 +1,82 @@
+#!/bin/bash
+
+HOSTNAME="$(hostname)"
+EVENT="2014p051675"
+
+
+function usage(){
+cat <<EOF
+Usage: $0 [Options]
+Build or run RTEQcrorscan RCET images.
+
+Optional Arguments:
+    -h, --help          Show this message.
+    -b, --build         Build the containers.
+    -s, --sim           Run a simulation.
+    -e, --eventid       Event ID for simulation (default $EVENT).
+    -c, --clean         Clean old containers.
+    -r, --run           Run the real-time system.
+EOF
+}
+
+
+if [[ $# -eq 0  ]] ; then
+    usage
+    exit 1
+fi
+
+while [ $# -gt 0 ]
+do
+    case "$1" in
+        -h | --help) usage; exit 0;;
+        -b | --build) BUILD=true;;
+        -s | --sim) SIM=true;;
+        -e | --eventid) EVENT=$2;shift;;
+        -r | --run) RUN=true;;
+        -c | --clean) CLEAN=true;;
+        -*) echo "Unknown args: $1"; usage; exit 1;;
+    esac
+    shift
+done
+
+if [ "${CLEAN}" == "true" ]; then
+    echo "Cleaning"
+    if [ "${SIM}" == "true" ]; then
+        TRIGGER_ID=${EVENT} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env down
+    else
+        docker compose -f compositions/docker-compose.yml --env-file env_files/${HOSTNAME}_rt.env down
+    fi
+    exit 0
+fi
+
+
+
+if [ "${BUILD}" == "true" ]; then
+    echo "Building for ${HOSTNAME}"
+    if [ "${SIM}" == "true" ]; then
+        TRIGGER_ID=${EVENT} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env build
+    else
+        docker compose -f compositions/docker-compose.yml --env-file env_files/${HOSTNAME}_rt.env build
+    fi
+    exit 0
+fi
+
+if [ "${SIM}" == "true" ]; then
+    if [ "${RUN}" == "true" ]; then
+        echo "Cannot run and simulate"
+        exit 1
+    fi
+
+    echo "Running simulation for ${EVENT}"
+
+    TRIGGER_ID=${EVENT} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env up
+    exit 0
+fi
+
+if [ "${RUN}" == "true" ]; then
+    echo "Running real-time"
+
+    docker compose -f compositions/docker-compose.yml --env-file env_files/${HOSTNAME}_rt.env up
+
+    exit 0
+fi

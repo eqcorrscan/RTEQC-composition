@@ -14,7 +14,7 @@ networks:
 services:
   rteqc-sim:
     build:
-      context: ./RCET_RTEQcorrscan/simulations
+      context: ../RCET_RTEQcorrscan/simulations
     container_name: rteq-real-time
     restart: always
     networks:
@@ -30,7 +30,7 @@ services:
 
   api:
     build:
-      context: ./RTEQC_api
+      context: ../RTEQC_api
     container_name: rteqc-api
     restart: always
     networks:
@@ -46,7 +46,7 @@ services:
 
   grafana:
     build: 
-      context: ./RTEQC_grafana
+      context: ../RTEQC_grafana
     container_name: rteqc-grafana
     networks: 
       - rteqc_net
