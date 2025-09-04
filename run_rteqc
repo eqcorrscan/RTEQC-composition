@@ -2,6 +2,7 @@
 
 HOSTNAME="$(hostname)"
 EVENT="2014p051675"
+DBDUR="730"
 
 
 function usage(){
@@ -14,6 +15,7 @@ Optional Arguments:
     -b, --build         Build the containers.
     -s, --sim           Run a simulation.
     -e, --eventid       Event ID for simulation (default $EVENT).
+    -d, --db-duration   DB duration (days) for simulation (default $DBDUR)
     -c, --clean         Clean old containers.
     -r, --run           Run the real-time system.
 EOF
@@ -42,7 +44,7 @@ done
 if [ "${CLEAN}" == "true" ]; then
     echo "Cleaning"
     if [ "${SIM}" == "true" ]; then
-        TRIGGER_ID=${EVENT} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env down
+        TRIGGER_ID=${EVENT} DB_LEN=${DBDUR} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env down
     else
         docker compose -f compositions/docker-compose.yml --env-file env_files/${HOSTNAME}_rt.env down
     fi
@@ -54,7 +56,7 @@ fi
 if [ "${BUILD}" == "true" ]; then
     echo "Building for ${HOSTNAME}"
     if [ "${SIM}" == "true" ]; then
-        TRIGGER_ID=${EVENT} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env build
+        TRIGGER_ID=${EVENT} DB_LEN=${DBDUR} docker compose -f compositions/simulation-docker-compose.yml --env-file env_files/${HOSTNAME}_sim.env build
     else
         docker compose -f compositions/docker-compose.yml --env-file env_files/${HOSTNAME}_rt.env build
     fi
